@@ -110,6 +110,8 @@ Parameter `i_model` specifies the flow model (`=2` for iso-thermal RTM, `=3` for
 Thus, the preform parameters of the four optional sets given in lines 7 to 10 are only used, if the corresponding patch type is specified with a value of 2. 
 The parameters in line 12 are used for continuing a simulation for another `tmax` flow time, if `i_restart=1` with the data saved in file `restartfilename`. In line 13 the interactive mode can be turned on if `i_interactive=1`. At selected points in the preform (plot the mesh with second parameter `=2` and select with `p`+LMB), additional inlet port with radius `r_p` are assigned. If all patch types are `=0`, only the selected inlet ports are used. Otherwise the settings are cummulative. The last parameter `n_pics` determines the number of intermediate outputs.
 
+CONTINUE HERE
+
 A simulation with the parameters specified in an input file is executed either in the GUI by selecting the appropriate input file and afterwards running the simulation with this input file or from the Julia terminal with  the function `rtmsim.start_rtmsim("inputfiles\\input.txt")` where the input file name is the argument.
 
 Alternatively to using the GUI, one has access to all the functions after compiling the Julia module. Popular functions are:
