@@ -40,7 +40,7 @@ In order to use LCMsim for filling simulations perform the following steps:
 - Open a Julia terminal. 
 - Change to package manager with `]` and `add Gtk GLMakie Makie NativeFileDialog Glob LinearAlgebra JLD2 GeometryBasics Random FileIO ProgressMeter` and return with the `backspace` key
 - Download the current LCMsim release and extract.  
-- For Windows operating system: Go to the folder with the RTMsim repository and double click on run_rtmsim_GUI.bat to start the GUI. For all operating systems: One has access to all functions through the Julia terminal. Open a Julia terminal, change to the directory with the RTMsim repository with `cd("path\\to\\working\\directory")` where the path can be absolute or relative and the levels are separated by `\\` and then start either the GUI with `include("lcmsim_GUI.jl")` or call all functions directly after executing `include("lcmsim.jl")`. 
+- For Windows operating system: Go to the folder with the LCMsim repository and double click on run_lcmsim_GUI.bat to start the GUI. For all operating systems: One has access to all functions through the Julia terminal. Open a Julia terminal, change to the directory with the LCMsim repository with `cd("path\\to\\working\\directory")` where the path can be absolute or relative and the levels are separated by `\\` and then start either the GUI with `include("lcmsim_GUI.jl")` or call all functions directly after executing `include("lcmsim.jl")`. 
 
 
 
