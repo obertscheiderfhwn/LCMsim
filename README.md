@@ -1,7 +1,7 @@
 # LCMsim - A Julia module for filling simulations in Liquid Composite Moulding
 
 
-# Statement of need
+# Summary
 Resin Transfer Moulding (RTM) is a manufacturing process for producing thin-walled fiber reinforced polymer composites where dry fibers are placed inside a mould and resin is injected under pressure into the fibrous preform. In contrast to RTM, in Vaccum-Assisted Resin Infusion (VARI) vacuum pulls resin through the preform on a single-sided tool with vacuum bagging. During mold design for both RTM and VARI, filling simulations can study different manufacturing concepts (i.e. placement of inlet ports and vents) to guarantee complete filling of the part and avoid air entrapment where flow fronts converge. 
 
 In all of the liquid composite manufacturing (LCM) technologies dry fiber preforms without resin are placed into a mold and the mold is closed. Resin then enters into the mold until the preform is fully wetted with resin. After the resin is cured the mold is opened and the part is extracted. In RTM resin is injected into a matched mold under pressure which gives excellent surface finishes on both sides and high fiber volume fractions (55-65 \%) can be obtained. In VARI, vacuum pulls liquid resin into a preform which lies on a single-sided tool normally used with a vacuum bagging which results on an excellent surface only on the tool side and only a lower fiber volume fraction (45-55 \%) can be obtained.
@@ -24,23 +24,23 @@ In order to numerically solve the flow model with the equation of state from Fig
 
 The temporal domain (i.e. the simulation time) is split into a finite number of time steps where values for the physical quantities on the spatial domain are calculated in a time-marching manner. An explicit method with adaptive time stepping is used.
 
-The spatial domain is defined on the cavity's mid-surface and described by a shell mesh in a format similar to the NASTRAN bulk data format \cite{nastran}. The mid-surface model can be curved and cells can have edges where more than two cells are connected to each other such as for handling T-junctions. This is illustrated in Figure \ref{fig_flatten}a. The injection gate is part of the computational domain and injection pressure and resin fraction one is assigned to the cells belonging to this region. Vents can be specified optionally. If no vents are specified (similar to software myRTM) the simulated filling is not influenced as long as the flow front does not reach the fictitious vent position. Initial pressure is input, initial velocity is zero and initial resin fraction is zero in all cells except in those belonging to the injection gate. 
+The spatial domain is defined on the cavity's mid-surface and described by a shell mesh in a format similar to the NASTRAN bulk data format . The mid-surface model can be curved and cells can have edges where more than two cells are connected to each other such as for handling T-junctions. The injection gate is part of the computational domain and injection pressure and resin fraction one is assigned to the cells belonging to this region. Vents can be specified optionally. If no vents are specified (similar to software myRTM) the simulated filling is not influenced as long as the flow front does not reach the fictitious vent position. Initial pressure is input, initial velocity is zero and initial resin fraction is zero in all cells except in those belonging to the injection gate. 
 
 For discretizing the equations on the shell mesh of the part's mid-surface it is assumed that the geometry was locally flat there. The neighbouring cells are rotated about the common edges to lie in the plane of the considered cell and the velocity vectors of the neighbouring cells must be transformed into the same coordinate system.
 
-The solver section (which is the relevant section if a different physical model is implemented) consists of a \verb+for+-loop over all interior and wall cells inside a \verb+while+-loop for the time evolution. For every interior and wall cell, the following steps are performed: First, the pressure and filling fraction gradients are evaluated. Second, the time evolution for new mass density, $x$- and $y$-velocities with the discretized continuum, $x$- and $y$-momentum equations in the cell coordinate systems is performed. Third, the pressure is evaluated according to the equation of state. Forth, the filling fraction is evaluated. Boundary conditions need not be updated since in the inlet and outlet cells pressure and mass density remain unchanged and the velocity values at the cell boundaries are evaluated in the numerical flux evaluation.
+The solver section (which is the relevant section if a different physical model is implemented) consists of a `for`-loop over all interior and wall cells inside a `while`-loop for the time evolution. For every interior and wall cell, the following steps are performed: First, the pressure and filling fraction gradients are evaluated. Second, the time evolution for new mass density, $x$- and $y$-velocities with the discretized continuum, $x$- and $y$-momentum equations in the cell coordinate systems is performed. Third, the pressure is evaluated according to the equation of state. Forth, the filling fraction is evaluated. Boundary conditions need not be updated since in the inlet and outlet cells pressure and mass density remain unchanged and the velocity values at the cell boundaries are evaluated in the numerical flux evaluation.
 
 
 
 # Installation instructions
 
-In order to use RTMsim for filling simulations perform the following steps:
+In order to use LCMsim for filling simulations perform the following steps:
 - Download Julia from https://julialang.org/downloads/
 - Install Julia and add an environment variable such that the Julia terminal can be started from the command line.
 - Open a Julia terminal. 
 - Change to package manager with `]` and `add Gtk GLMakie Makie NativeFileDialog Glob LinearAlgebra JLD2 GeometryBasics Random FileIO ProgressMeter` and return with the `backspace` key
-- Download a RTMsim release (https://github.com/obertscheiderfhwn/RTMsim/releases/tag/1.0.1 for the version corresponding to the JOSS paper) and extract.  
-- For Windows operating system: Go to the folder with the RTMsim repository and double click on run_rtmsim_GUI.bat to start the GUI. For all operating systems: One has access to all functions through the Julia terminal. Open a Julia terminal, change to the directory with the RTMsim repository with `cd("path\\to\\working\\directory")` where the path can be absolute or relative and the levels are separated by `\\` and then start either the GUI with `include("rtmsim_GUI.jl")` or call all functions directly after executing `include("rtmsim.jl")`. 
+- Download the current LCMsim release and extract.  
+- For Windows operating system: Go to the folder with the RTMsim repository and double click on run_rtmsim_GUI.bat to start the GUI. For all operating systems: One has access to all functions through the Julia terminal. Open a Julia terminal, change to the directory with the RTMsim repository with `cd("path\\to\\working\\directory")` where the path can be absolute or relative and the levels are separated by `\\` and then start either the GUI with `include("lcmsim_GUI.jl")` or call all functions directly after executing `include("lcmsim.jl")`. 
 
 
 
@@ -79,29 +79,29 @@ Nodes are described by the keyword `GRID`, followed by a grid number, followed b
 
 RTMsim is executed with a well-defined list of parameters specified in an input text file, in the GUI or in the function call `rtmsim.rtmsim_rev1` in the terminal. The following figure shows the GUI with explanation of the parameters. The mesh file and all parameters must be specified in SI units.
 
-<img src="figures/rtmsim_help.png">
+<img src="figures/lcmsim_help.png">
 
 The buttons in the first line on the LHS are used for mesh inspection, i.e. select a mesh file, plot the mesh with bounding box and plot the defined sets. The buttons in the second line on the LHS are used for starting and continuing a filling simulation. Every time the Start or Continue simulation button is pressed, a filling simulation is started. The simulated flow time `tmax`, the patch types and patch properties must be specified before. Every simulation calculates the flow front propagation during the next `tmax` seconds. If started with the Start simulation button, the cavity is empty initially. If started with the Continue simulation button, the results from the previous simulation are taken as initial condition. With the buttons in the third line one can select inlet ports with specified radius interactively in addition to using the defined sets, and start and continue such a simulation. The buttons in the forth line are used for post-processing, i.e. show filling and pressure distribution of a specified output file (final results are saved in results.jld2), plot filling at four equidistant time instances and filling at different time instances which are selected with a slider bar. The buttons in the line on the RHS are used to start the simulation with the parameters from the selected input file.
 
 The complete set of input parameters can be accessed in the input file. The following paragraph shows an example for such an input file:
 ```
-1    #i_model 
-meshfiles\\mesh_permeameter1_foursets.bdf    #meshfilename 
-200    #tmax 
-1.01325e5 1.225 1.4 0.06    #p_ref rho_ref gamma mu_resin_val 
-1.35e5 1.0e5    #p_a_val p_init_val 
-3e-3 0.7 3e-10 1 1 0 0    #t_val porosity_val K_val alpha_val refdir1_val refdir2_val refdir3_val 
-3e-3 0.7 3e-10 1 1 0 0    #t1_val porosity1_val K1_val alpha1_val refdir11_val refdir21_val refdir31_val 
-3e-3 0.7 3e-10 1 1 0 0    #t2_val porosity2_val K2_val alpha2_val refdir12_val refdir22_val refdir32_val
-3e-3 0.7 3e-10 1 1 0 0    #t3_val porosity3_val K3_val alpha3_val refdir13_val refdir23_val refdir33_val
-3e-3 0.7 3e-10 1 1 0 0    #t4_val porosity4_val K4_val alpha4_val refdir14_val refdir24_val refdir34_val 
-1 0 0 0    #patchtype1val patchtype2val patchtype3val patchtype4val 
-0 results.jld2    #i_restart restartfilename
-0 0.01    #i_interactive r_p
+2    #i_model 
+meshfiles\\mesh_permeameter5.bdf    #meshfilename 
+160    #tmax
+1.01325e5 1.225 1.4 0.071    #p_ref rho_ref gamma mu_resin_val 
+1.91e5 1.0e5 1.2 960    #p_a_val p_init_val 
+3.14e-3 0.604 163e-12 0.3086 1 0 0 0.604 0.6 0e5   #t_val porosity_val K_val alpha_val refdir1_val refdir2_val refdir3_val 
+3.14e-3 0.7 3e-10 1 1 0 0 0.7 0e5    #t1_val porosity1_val K1_val alpha1_val refdir11_val refdir21_val refdir31_val 
+3.14e-3 0.468 28.6e-12 0.122 1 0 0 0.468 0e5    #t2_val porosity2_val K2_val alpha2_val refdir12_val refdir22_val refdir32_val 
+3.14e-3 0.7 3e-10 1 1 0 0 0.7 0e5    #t3_val porosity3_val K3_val alpha3_val refdir13_val refdir23_val refdir33_val 
+3.14e-3 0.7 3e-10 1 1 0 0 0.7 0e5    #t4_val porosity4_val K4_val alpha4_val refdir14_val refdir24_val refdir34_val 
+1 2 0 0    #patchtype1val patchtype2val patchtype3val patchtype4val 
+0 results.jld2    #i_restart restartfilename 
+0 0.01    #i_interactive r_p 
 16    #n_pics
 ```
 
-Parameter `i_model` specifies the flow model (`=1` for iso-thermal RTM). `meshfilename` specifies the relative or absolute path to the used mesh file. `tmax` defines the simulated filling time. The parameters in the forth line define the adiabatic equation of state (reference pressure, reference density, adiabatic index) for air and the dynamic viscosity of the resin. The parameters in the fifth line define injection pressure and initial cavity pressure. The parameters in the lines 6 to 10 specify the preform parameters for the main preform and the optional four sets with different preform parameters. The sets for the patches are defined in the mesh file in ascending order. If less than four are defined, the patch types and the parameters for the additional ones are ignored. The preform parameters are preform thickness, porosity, permeability in first principal cell direction, permeablitiy fraction alpha specifies the permeablity in the second principal cell direction as alpha times permeablity in the first principal direction and the three components of a reference vector which is projected onto the cells to define the first principal cell direction. In line 11, the patch type of the four optional preform patches are specified. Numerical values 0, 1, 2 and 3 are allowed with the following interpretation:
+Parameter `i_model` specifies the flow model (`=2` for iso-thermal RTM, `=3` for iso-thermal VARI). `meshfilename` specifies the relative or absolute path to the used mesh file. `tmax` defines the simulated filling time. The parameters in the forth line define the adiabatic equation of state (reference pressure, reference density, adiabatic index) for air and the dynamic viscosity of the resin. The parameters in the fifth line define injection pressure and initial cavity pressure. The parameters in the lines 6 to 10 specify the preform parameters for the main preform and the optional four sets with different preform parameters. The sets for the patches are defined in the mesh file in ascending order. If less than four are defined, the patch types and the parameters for the additional ones are ignored. The preform parameters are preform thickness, porosity, permeability in first principal cell direction, permeablitiy fraction alpha specifies the permeablity in the second principal cell direction as alpha times permeablity in the first principal direction and the three components of a reference vector which is projected onto the cells to define the first principal cell direction. In line 11, the patch type of the four optional preform patches are specified. Numerical values 0, 1, 2 and 3 are allowed with the following interpretation:
 - 0 ... the patch is ignored
 - 1 ... the patch represents an inlet gate, where the specified injection pressure level applies
 - 2 ... the patch specifies a preform region
@@ -190,70 +190,15 @@ Close the graphics window and continue the simulation with the button Continue i
 Without cascade injection, the degree of filling is significantly lower as shown in the subsequent figure for a filling time of 400 s. <br>
 <img src="figures/example3h.png"><br>
 
-
-# Future work
-
-The source code is prepared for the following extensions:
-- Import mesh file in different format. Selection is based on the extension of the mesh file.
-- Input parameter `i_model` (for iso-thermal RTM `=1`) is used for adding additional functionalities. E.g. adding temperature and degree-of-cure equations with variable resin viscosity or for VARI with variable porosity, permeability and cavity thickness.
-- Parameter `i_method` in the functions for numerical differentiation and flux functions can be used to implement different numerical schemes. E.g. gradient limiter or second-order upwinding.
-
-E.g. if wiggles (oscillations) are present in the pressure contour plot, a gradient limiter is used in the function `numerical_gradient`. The function is called with i_method=2 as first argument: 
-`dpdx,dpdy=numerical_gradient(2,ind,p_old,cellneighboursarray,cellcentertocellcenterx,cellcentertocellcentery);` <br>
-In the function a case selection determines the used method:
-```
-    if i_method==1;
-        #least square solution to determine gradient
-        cellneighboursline=cellneighboursarray[ind,:];
-        cellneighboursline=cellneighboursline[cellneighboursline .> 0]
-        len_cellneighboursline=length(cellneighboursline)
-        bvec=Vector{Float64}(undef,len_cellneighboursline);
-        Amat=Array{Float64}(undef,len_cellneighboursline,2);  
-        for i_neighbour in 1:len_cellneighboursline;
-            i_P=ind;
-            i_A=cellneighboursarray[ind,i_neighbour];  
-            Amat[i_neighbour,1]=cellcentertocellcenterx[ind,i_neighbour]
-            Amat[i_neighbour,2]=cellcentertocellcentery[ind,i_neighbour]
-            bvec[i_neighbour]=p_old[i_A]-p_old[i_P];
-        end
-        xvec=Amat[1:len_cellneighboursline,:]\bvec[1:len_cellneighboursline];
-        dpdx=xvec[1];
-        dpdy=xvec[2];
-    elseif i_method==2;
-        #least square solution to determine gradient with limiter
-        cellneighboursline=cellneighboursarray[ind,:];
-        cellneighboursline=cellneighboursline[cellneighboursline .> 0]
-        len_cellneighboursline=length(cellneighboursline)
-        bvec=Vector{Float64}(undef,len_cellneighboursline);
-        Amat=Array{Float64}(undef,len_cellneighboursline,2);  
-        wi=Vector{Float64}(undef,len_cellneighboursline);
-        for i_neighbour in 1:len_cellneighboursline;
-            i_P=ind;
-            i_A=cellneighboursarray[ind,i_neighbour];  
-            exp_limiter=2;
-            wi[i_neighbour]=1/(sqrt((cellcentertocellcenterx[ind,i_neighbour])^2+(cellcentertocellcentery[ind,i_neighbour])^2))^exp_limiter;
-            Amat[i_neighbour,1]=wi[i_neighbour]*cellcentertocellcenterx[ind,i_neighbour]
-            Amat[i_neighbour,2]=wi[i_neighbour]*cellcentertocellcentery[ind,i_neighbour]
-            bvec[i_neighbour]=wi[i_neighbour]*(p_old[i_A]-p_old[i_P]);
-        end
-        xvec=Amat[1:len_cellneighboursline,:]\bvec[1:len_cellneighboursline];
-        dpdx=xvec[1];
-        dpdy=xvec[2];
-    end
-    return dpdx,dpdy
-end
-```
-After modifying and compiling the RTMsim module, a simulation can be started in the GUI or from the terminal.
-
+# Editorial
 Suggestions for functionalities to be implemented and user feedback from case studies with this software are appreciated (e.g. via email to christof.obertscheider@fhwn.ac.at). 
 
-# Citation
-If RTMsim is used for research or development, please use the following entry, shown in BiBTeX format:
+If LCMsim is used for research or development, please use the following entry, shown in BiBTeX format:
 ```
 @misc{RTMsim,
   author =       {Obertscheider, Christof and Fauster, Ewald},
-  title =        {RTMsim - A Julia module for filling simulations in Resin Transfer Moulding},
-  howpublished = {\url{https://github.com/obertscheiderfhwn/RTMsim}},
+  title =        {LCMsim - A Julia module for filling simulations in Liquid Composite Moulding},
+  howpublished = {\url{https://github.com/obertscheiderfhwn/LCMsim}},
   year =         {2022}
 }
 ```
