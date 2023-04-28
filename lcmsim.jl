@@ -222,7 +222,7 @@ module lcmsim
         #License statement
         print("\n")
         print("LCMsim version 0.1 \n");
-        print("LCMim is Julia code with GUI which simulates the mold filling in Liquid Composite Molding (LCM) manufacturing process. \n");
+        print("LCMsim is Julia code with GUI which simulates the mold filling in Liquid Composite Molding (LCM) manufacturing process. \n");
         print("Copyright (C) 2022 Christof Obertscheider / University of Applied Sciences Wiener Neustadt (FHWN)  \n");    
         print("\n")
         print("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version. \n");
@@ -297,7 +297,7 @@ module lcmsim
             errorstring="Wrong value for p_ref,rho_ref,gamma,mu (must be >0.0,>0.0,>1.0,>0.0)"
             error(errorstring)
         end 
-        print("p_a_val,p_init_val=", string(p_a_val), ",", string(p_init_val),"\n")
+        print("p_a_val,p_init_val,rho_0_air,rho_0_oil=", string(p_a_val), ",", string(p_init_val), ",", string(rho_0_air), ",", string(rho_0_oil),"\n")
             if p_a_val<=p_init_val;
                 errorstring="Injection pressure must be greater than initial pressure"
                 error(errorstring)
@@ -360,8 +360,6 @@ module lcmsim
             rho_b=(p_b/kappa)^(Float64(1)/gamma);
             rho_init=(p_init/kappa)^(Float64(1)/gamma);
         elseif i_model==2 || i_model==3;
-            #rho_0_air=1.2;  #must be a new input parameter
-            #rho_0_oil=960;  #must be a new input parameter
             rho_a=rho_0_air+(p_a-p_init)/(p_a-p_init)*(rho_0_oil-rho_0_air);
             rho_b=rho_0_air+(p_b-p_init)/(p_a-p_init)*(rho_0_oil-rho_0_air);
             rho_init=rho_0_air+(p_init-p_init)/(p_a-p_init)*(rho_0_oil-rho_0_air);       
@@ -543,7 +541,6 @@ module lcmsim
         # Define simulation time and intermediate output times
         #----------------------------------------------------------------------
         t_out=0;
-        t_progressbar=0;
         t=0;
         tmin=n_pics*deltat;
         tmax=max(tmin,tmax);    
@@ -623,6 +620,7 @@ module lcmsim
         #----------------------------------------------------------------------
         n_progressbar=20;
         deltat_progressbar=tmax/n_progressbar;
+        t_progressbar=deltat_progressbar;
         p=Progress(n_progressbar);
         iter=1;
         while t<=tmax;           
@@ -761,58 +759,38 @@ module lcmsim
                         end
 
                         #Final solution for EOS:
-                        betat2_fac=1  #0.1  #
-                        exp_val=4;
+                        betat2_fac=0.25  #0.1  #1.0  #
+                        exp_val=10;  #4;  #
                         a_val=p_init;
                         c_val=(p_a-p_init)/(rho_0_oil-rho_0_air)^exp_val;
                         p_new[ind]=a_val+c_val*(rho_new[ind]-rho_0_air)^exp_val;
-                        p_new[ind]=min(p_a,p_new[ind]);
+                        p_new[ind]=min(1.0*p_a,p_new[ind]);
                         p_new[ind]=max(p_init,p_new[ind]);
 
-                        #Original solution for EOS
-                        #c1=0.01
-                        #c2=0.01       
-                        #betat2_fac=0.1               
-                        #comp_fact=0.95
-                        ##betat2_fac=1               
-                        ##comp_fact=0.80
-                        #rho_transition=comp_fact*rho_0_oil+c1*(rho_0_oil-comp_fact*rho_0_oil);
-                        #p_transition=p_init+c2*(p_a-p_init);   
-                        #if rho_new[ind]<=comp_fact*rho_0_oil  #pressure build-up starts only after threshold rho is reached
-                        #    p_new[ind]=p_init;
-                        #elseif rho_new[ind]<=rho_transition;
-                        #    rho_min=rho_0_air+(comp_fact*(rho_0_oil-rho_0_air));
-                        #    p_1=p_init;
-                        #    p_2=p_transition;
-                        #    p_new[ind]=p_1+(p_2-p_1)*((rho_new[ind]-rho_min)/(rho_transition-rho_min))^2;
-                        #else
-                        #    rho_min=rho_transition;
-                        #    p_1=p_transition;
-                        #    p_2=p_a;
-                        #    p_new[ind]=p_1+(p_2-p_1)*((rho_new[ind]-rho_min)/(rho_0_oil-rho_min));
-                        #end  
-
-#                        #Alternative solution for EOS
-#                        #c1=0.8; betat2_fac=1
-#                        c1=0.95; betat2_fac=0.1
-#                        c2=0.01
-#                        rho_transition=rho_0_air+c1*(rho_0_oil-rho_0_air);
-#                        p_transition=p_init+c2*(p_a-p_init);
-#                        if rho_new[ind]<=rho_transition;
-#                            p_1=p_init;
-#                            p_2=p_transition;
-#                            rho_1=rho_init;
-#                            rho_2=rho_transition;
-#                            p_new[ind]=p_1+(p_2-p_1)*(rho_new[ind]-rho_1)/(rho_2-rho_1);
+#                        #Test with double ellipse for speed up; to limit max pressure with smooth transition
+#                        betat2_fac=1.0  #0.25
+#                        if rho_new[ind]<=rho_0_air
+#                            p_new[ind]=p_init;
+#                        elseif rho_new[ind]<=rho_0_oil
+#                            a=(rho_0_oil-rho_0_air)
+#                            b=(p_a-p_init)
+#                            #p_new[ind]=-b/a*(a^2-(rho_new[ind]-rho_0_air)^2)^(1/2)+b+p_init
+#                            exp_val=2.5
+#                            p_new[ind]=-b/a*(a^exp_val-(rho_new[ind]-rho_0_air)^exp_val)^(1/exp_val)+b+p_init
+#                        elseif rho_new[ind]<=2*rho_0_oil
+#                            a=0.1*p_a
+#                            b=2*rho_0_oil
+#                            #p_new[ind]=b/a*(a^2-(rho_new[ind]-rho_0_oil)^2)^(1/2)+p_a
+#                            exp_val=2.0
+#                            p_new[ind]=b/a*(a^exp_val-(rho_new[ind]-rho_0_oil)^exp_val)^(1/exp_val)+p_a
 #                        else
-#                            p_1=p_transition;
-#                            p_2=p_a;
-#                            rho_1=rho_transition;
-#                            rho_2=rho_a;
-#                            p_new[ind]=p_1+(p_2-p_1)*(rho_new[ind]-rho_1)/(rho_2-rho_1);
+#                            a=0.1*p_a
+#                            b=2*rho_0_oil
+#                            exp_val=2.0
+#                            p_new[ind]=b/a*(a^exp_val-((b)-rho_0_oil)^exp_val)^(1/exp_val)+p_a
 #                        end
-#                        p_new[ind]=min(p_a,p_new[ind]);
-#                        p_new[ind]=max(p_init,p_new[ind]);
+
+
 
 
                     end
@@ -849,7 +827,7 @@ module lcmsim
 
             #Progress bar with percentage during run
             prozent = (t/tmax)*100;  
-            if t>=t_progressbar;
+            if t>=t_progressbar-deltat;
                 #print(string(string(prozent),"%","\n"))
                 t_progressbar=t_progressbar+deltat_progressbar;   
                 next!(p);
@@ -860,7 +838,7 @@ module lcmsim
                 inds1=findall(isequal(1),celltype);
                 inds2=findall(isequal(-3),celltype);
                 inds=vcat(inds1,inds2);               
-                weight_deltatnew=Float64(0.5);  #0.1;  #
+                weight_deltatnew=0.1;   #0.1;  #Float64(0.5);  #0.1;  #
                 if i_model==1
                     betat2=Float64(0.1)
                 elseif i_model==2 || i_model==3
@@ -1037,23 +1015,34 @@ module lcmsim
             n_x=meshparameters[1];
             n_y=meshparameters[2];
             A=meshparameters[3];
-            n_dot_rhou=dot([n_x; n_y],0.5*(rho_P+rho_A)*[0.5*(u_P+u_A); 0.5*(v_P+v_A)]);
+            n_dot_rhou1=dot([n_x; n_y],0.5*(rho_P+rho_A)*[0.5*(u_P+u_A); 0.5*(v_P+v_A)]);
+            n_dot_rhou=n_dot_rhou1;
+            #if n_dot_rhou1>=0;
+            #    n_dot_rhou=dot([n_x; n_y],rho_P*[u_P; v_P]);                        
+            #else
+            #    n_dot_rhou=dot([n_x; n_y],rho_A*[u_A; v_A]);
+            #end
             phi=1;
             F_rho_num_add=n_dot_rhou*phi*A;
-            if n_dot_rhou>=0;
+            if n_dot_rhou1>=0;
                 phi=u_P;                                
             else
                 phi=u_A;
             end
             F_u_num_add=n_dot_rhou*phi*A;     
-            if n_dot_rhou>=0;
+            if n_dot_rhou1>=0;
                 phi=v_P;  
             else
                 phi=v_A;
             end
             F_v_num_add=n_dot_rhou*phi*A; 
             n_dot_u=dot([n_x; n_y],[0.5*(u_P+u_A); 0.5*(v_P+v_A)]);
-            if n_dot_u>=0; 
+            #if n_dot_rhou1>=0; 
+            #    n_dot_u=dot([n_x; n_y],[u_P; v_P]);
+            #else
+            #    n_dot_u=dot([n_x; n_y],[u_A; v_A]);
+            #end  
+            if n_dot_rhou1>=0; 
                 phi=gamma_P;  
             else
                 phi=gamma_A;
@@ -2538,177 +2527,171 @@ module lcmsim
         end
         display(fig)
     end 
-
+    
 
     function plot_filling(n_out,n_pics)
-        #create a window showing the filling factor contour plot at a selected time instance. Selection is with slider bar.
-        #n_out ist the index of the last output file, if n_out==-1 the output file with the highest index is chosen
-        #consider the last n_pics for creating the contour plots at four equidistant time intervals, if n_pics==-1 all available output files are considered
-        #default call is plot_filling(-1,-1)
-
-        exist_plot=0;
-        val=0;
-		n_out_start=-1;
-        if n_out==-1;
-            vec1=glob("output_*.jld2");
-            for i=1:length(vec1);
+        val=0
+        n_out_start=-1
+        if n_out==-1
+            vec1=glob("output_*.jld2")
+            for i=1:length(vec1)
                 vec2=split(vec1[i],".")
                 vec3=split(vec2[1],"_")
                 val=max(val,parse(Int64,vec3[2]))
-				if i==1;
-				    n_out_start=parse(Int64,vec3[2]);
-				end
+                if i==1
+                    n_out_start=parse(Int64,vec3[2])
+                end
             end            
-            n_out=val;
+            n_out=val
         end
-		if n_pics==-1;
-		    n_pics=(n_out-n_out_start);
-		end
+        if n_pics==-1
+            n_pics=(n_out-n_out_start)
+        end
         #plot the last n_pics pictures
-        if n_pics<4;
-            errorstring=string("Makes no sense for n_pics<4"* "\n"); 
-            error(errorstring);
+        if n_pics<4
+            errorstring=string("Makes no sense for n_pics<4"* "\n") 
+            error(errorstring)
         end
-        t_digits=2; 
-        t_div=10^2;
-        
-        time_vector=[];
-        output_array=[];
-        inds=[];
-        inds0=[];
-        inds1=[];
-        N=Int64(0);
-        N0=Int64(0);
-        N1=Int64(0);
-        ax=Float64(0.0);
-        ay=Float64(0.0);
-        az=Float64(0.0);
-        t=Float64(0);
-        xyz=Vector{Float64};
-        xyz1=Vector{Float64};
-        X=Vector{Float64};
-        Y=Vector{Float64};
-        Z=Vector{Float64};
-        C=Vector{Float64};
-        X1=Vector{Float64};
-        Y1=Vector{Float64};
-        Z1=Vector{Float64};
-        C1_gamma=Vector{Float64};        
-        i_out=n_out-n_pics;
-        i_firstfile=1;
-        for i_plot in 1:n_pics+1;          
-            outputfilename=string("output_",string(i_out),".jld2");
-            if ~isfile(outputfilename);
-                errorstring=string("File ",outputfilename," not existing"* "\n"); 
-                error(errorstring);
+        t_digits=2 
+        t_div=10^2
+    
+        time_vector=[]
+        output_array=[]
+        inds=[]
+        inds0=[]
+        inds1=[]
+        N=Int64(0)
+        N0=Int64(0)
+        N1=Int64(0)
+        ax=0.0
+        ay=0.0
+        az=0.0
+        t=0.0
+        xyz=Vector{Float64}
+        xyz1=Vector{Float64}
+        X=Vector{Float64}
+        Y=Vector{Float64}
+        Z=Vector{Float64}
+        C=Vector{Float64}
+        X1=Vector{Float64}
+        Y1=Vector{Float64}
+        Z1=Vector{Float64}
+        C1_gamma=Vector{Float64}        
+        i_out=n_out-n_pics
+        i_firstfile=1
+        for i_plot in 1:n_pics+1          
+            outputfilename=string("output_",string(i_out),".jld2")
+            if ~isfile(outputfilename)
+                errorstring=string("File ",outputfilename," not existing"* "\n") 
+                error(errorstring)
             else
                 loadfilename="results_temp.jld2"
-                cp(outputfilename,loadfilename;force=true);
+                cp(outputfilename,loadfilename;force=true)
                 @load loadfilename t rho_new u_new v_new p_new gamma_new gamma_out gridx gridy gridz cellgridid N n_out
-                #print(string(i_plot)*" \n")
-                #print(string(i_out)*" \n")
-                if i_firstfile==1;
-                    i_firstfile=0;
+                if i_firstfile==1
+                    i_firstfile=0
                     #for poly plot
-                    inds0=findall(gamma_out.>-0.5);
-                    N0=length(inds0);
-                    X=Array{Float64}(undef, 3, N0);
-                    Y=Array{Float64}(undef, 3, N0);
-                    Z=Array{Float64}(undef, 3, N0);
-                    C_p=Array{Float32}(undef, 3, N0);        
-                    C_gamma=Array{Float32}(undef, 3, N0);
-                    inds1=findall(gamma_out.<-0.5);
-                    N1=length(inds1);
-                    X1=Array{Float64}(undef, 3, N1);
-                    Y1=Array{Float64}(undef, 3, N1);
-                    Z1=Array{Float64}(undef, 3, N1);  
-                    C1_gamma=Array{Float32}(undef, 3, N1);
-                    for i in 1:N0;
-                        ind=inds0[i];
-                        X[1,i]=gridx[cellgridid[ind,1]];
-                        X[2,i]=gridx[cellgridid[ind,2]];
-                        X[3,i]=gridx[cellgridid[ind,3]];
-                        Y[1,i]=gridy[cellgridid[ind,1]];
-                        Y[2,i]=gridy[cellgridid[ind,2]];
-                        Y[3,i]=gridy[cellgridid[ind,3]];
-                        Z[1,i]=gridz[cellgridid[ind,1]];
-                        Z[2,i]=gridz[cellgridid[ind,2]];
-                        Z[3,i]=gridz[cellgridid[ind,3]];
+                    inds0=findall(gamma_out.>-0.5)
+                    N0=length(inds0)
+                    X=Array{Float64}(undef, 3, N0)
+                    Y=Array{Float64}(undef, 3, N0)
+                    Z=Array{Float64}(undef, 3, N0)
+                    C_p=Array{Float32}(undef, 3, N0)        
+                    C_gamma=Array{Float32}(undef, 3, N0)
+                    inds1=findall(gamma_out.<-0.5)
+                    N1=length(inds1)
+                    X1=Array{Float64}(undef, 3, N1)
+                    Y1=Array{Float64}(undef, 3, N1)
+                    Z1=Array{Float64}(undef, 3, N1)  
+                    C1_gamma=Array{Float32}(undef, 3, N1)
+                    for i in 1:N0
+                        ind=inds0[i]
+                        X[1,i]=gridx[cellgridid[ind,1]]
+                        X[2,i]=gridx[cellgridid[ind,2]]
+                        X[3,i]=gridx[cellgridid[ind,3]]
+                        Y[1,i]=gridy[cellgridid[ind,1]]
+                        Y[2,i]=gridy[cellgridid[ind,2]]
+                        Y[3,i]=gridy[cellgridid[ind,3]]
+                        Z[1,i]=gridz[cellgridid[ind,1]]
+                        Z[2,i]=gridz[cellgridid[ind,2]]
+                        Z[3,i]=gridz[cellgridid[ind,3]]
                     end
                     xyz = reshape([X[:] Y[:] Z[:]]', :)
                     for i in 1:N1
-                        ind=inds1[i];
-                        X1[1,i]=gridx[cellgridid[ind,1]];
-                        X1[2,i]=gridx[cellgridid[ind,2]];
-                        X1[3,i]=gridx[cellgridid[ind,3]];
-                        Y1[1,i]=gridy[cellgridid[ind,1]];
-                        Y1[2,i]=gridy[cellgridid[ind,2]];
-                        Y1[3,i]=gridy[cellgridid[ind,3]];
-                        Z1[1,i]=gridz[cellgridid[ind,1]];
-                        Z1[2,i]=gridz[cellgridid[ind,2]];
-                        Z1[3,i]=gridz[cellgridid[ind,3]];
-                        C1_gamma[1,i]=0.5;
-                        C1_gamma[2,i]=0.5;
-                        C1_gamma[3,i]=0.5;
+                        ind=inds1[i]
+                        X1[1,i]=gridx[cellgridid[ind,1]]
+                        X1[2,i]=gridx[cellgridid[ind,2]]
+                        X1[3,i]=gridx[cellgridid[ind,3]]
+                        Y1[1,i]=gridy[cellgridid[ind,1]]
+                        Y1[2,i]=gridy[cellgridid[ind,2]]
+                        Y1[3,i]=gridy[cellgridid[ind,3]]
+                        Z1[1,i]=gridz[cellgridid[ind,1]]
+                        Z1[2,i]=gridz[cellgridid[ind,2]]
+                        Z1[3,i]=gridz[cellgridid[ind,3]]
+                        C1_gamma[1,i]=0.5
+                        C1_gamma[2,i]=0.5
+                        C1_gamma[3,i]=0.5
                     end
                     xyz1 = reshape([X1[:] Y1[:] Z1[:]]', :)
-
+    
                     #bounding box
-                    deltax=maximum(gridx)-minimum(gridx);
-                    deltay=maximum(gridy)-minimum(gridy);
-                    deltaz=maximum(gridz)-minimum(gridz);
-                    mindelta=min(deltax,deltay,deltaz);
-                    maxdelta=max(deltax,deltay,deltaz);
-                    if mindelta<maxdelta*0.001;
-                        eps_delta=maxdelta*0.001;
+                    deltax=maximum(gridx)-minimum(gridx)
+                    deltay=maximum(gridy)-minimum(gridy)
+                    deltaz=maximum(gridz)-minimum(gridz)
+                    mindelta=min(deltax,deltay,deltaz)
+                    maxdelta=max(deltax,deltay,deltaz)
+                    if mindelta<maxdelta*0.001
+                        eps_delta=maxdelta*0.001
                     else
-                        eps_delta=0;
+                        eps_delta=0
                     end 
-                    ax=(deltax+eps_delta)/(mindelta+eps_delta);
-                    ay=(deltay+eps_delta)/(mindelta+eps_delta);
-                    az=(deltaz+eps_delta)/(mindelta+eps_delta);
-                    time_vector=t;
-                    output_array=gamma_out; 
-                    N_val=N;
-
+                    ax=(deltax+eps_delta)/(mindelta+eps_delta)
+                    ay=(deltay+eps_delta)/(mindelta+eps_delta)
+                    az=(deltaz+eps_delta)/(mindelta+eps_delta)
+                    time_vector=t
+                    output_array=gamma_out 
+                    N_val=N
+    
                 else
-                    time_vector=vcat(time_vector,t);
-                    output_array=hcat(output_array,gamma_out);
+                    time_vector=vcat(time_vector,t)
+                    output_array=hcat(output_array,gamma_out)
                 end
             end
-            i_out=i_out+1;
+            i_out=i_out+1
         end
-
+    
         gamma_plot=output_array[:,end]  
-        for ind=1:N;
-            if gamma_plot[ind]>0.8;
-                gamma_plot[ind]=1;
+        for ind=1:N
+            if gamma_plot[ind]>0.8
+                gamma_plot[ind]=1
             else
-                gamma_plot[ind]=0;
+                gamma_plot[ind]=0
             end
         end
-        deltagamma=maximum(gamma_plot)-minimum(gamma_plot);
-        
-        C_gamma=Array{Float32}(undef, 3, N0);
-        for i in 1:N0;
-            ind=inds0[i];
-            C_gamma[1,i]=gamma_plot[ind]/deltagamma;
-            C_gamma[2,i]=gamma_plot[ind]/deltagamma;
-            C_gamma[3,i]=gamma_plot[ind]/deltagamma;
+        deltagamma=1  #deltagamma=maximum(gamma_plot)-minimum(gamma_plot)
+    
+        C_gamma=Array{Float32}(undef, 3, N0)
+        for i in 1:N0
+            ind=inds0[i]
+            C_gamma[1,i]=gamma_plot[ind]/deltagamma
+            C_gamma[2,i]=gamma_plot[ind]/deltagamma
+            C_gamma[3,i]=gamma_plot[ind]/deltagamma
         end
-
-        resolution_val=600;
+    
+        resolution_val=600
         fig = Figure(resolution=(resolution_val, resolution_val))   
         ax1 = Axis3(fig[1, 1]; aspect=(ax,ay,az), perspectiveness=0.5,viewmode = :fitzoom,title=string("Filling factor at t=", string(round(t_div*t)/t_div) ,"s"))
-        #p1=poly!(ax1,connect(xyz, Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
-        #if N1>0;
-        #    p2=poly!(ax1,connect(xyz1, Point{3}), connect(1:length(X1), TriangleFace); color=C1_gamma[:], strokewidth=1, colorrange=(0,1),colormap = (:bone))
+        #p1=poly!(ax1,connect(xyz, Makie.Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
+        #if N1>0
+        #    p2=poly!(ax1,connect(xyz1, Makie.Point{3}), connect(1:length(X1), TriangleFace); color=C1_gamma[:], strokewidth=1, colorrange=(0,1),colormap = (:bone))
         #end
-        hidedecorations!(ax1);
+        hidedecorations!(ax1)
         hidespines!(ax1) 
-        sl_t = Slider(fig[2, 1], range = time_vector[1]:  (time_vector[end]-time_vector[1])/n_pics :time_vector[end], startvalue =  time_vector[1] );
-        data=lift(sl_t.value) do x 
-            if x<0.5*(time_vector[end]+time_vector[1]);
+        #display(fig)
+        #sl_t = Slider(fig[2, 1], range = time_vector[1]:  (time_vector[end]-time_vector[1])/n_pics :time_vector[end], startvalue =  time_vector[end] )
+        sl_t = Slider(fig[2, 1], range = time_vector[1]:  (time_vector[end]-time_vector[1])/n_pics :time_vector[end], startvalue =  time_vector[1] )
+        point = lift(sl_t.value) do x           
+            if x<0.5*(time_vector[end]+time_vector[1])
                 gamma_plot=output_array[:,1]
             else
                 gamma_plot=output_array[:,end]
@@ -2717,39 +2700,41 @@ module lcmsim
             tind=1
             tind1=1
             tind2=2
-            for i in 1:length(time_vector)-1;
+            for i in 1:length(time_vector)-1
                 if x>=0.5*(time_vector[i]+time_vector[i+1])
-                    tind=i+1;
+                    tind=i+1
                 end
             end            
             gamma_plot=output_array[:,tind]
             time_val=time_vector[tind]
-            #print("x= "*string(x)*"\n")
-
-            for ind=1:N;
-                if gamma_plot[ind]>0.8;
-                    gamma_plot[ind]=1;
+    
+            for ind=1:N
+                if gamma_plot[ind]>0.8
+                    gamma_plot[ind]=1
                 else
-                    gamma_plot[ind]=0;
+                    gamma_plot[ind]=0
                 end
             end
-            deltagamma=maximum(gamma_plot)-minimum(gamma_plot);
-            for i in 1:N0;
-                ind=inds0[i];
-                C_gamma[1,i]=gamma_plot[ind]/deltagamma;
-                C_gamma[2,i]=gamma_plot[ind]/deltagamma;
-                C_gamma[3,i]=gamma_plot[ind]/deltagamma;
+            deltagamma=1  #maximum(gamma_plot)-minimum(gamma_plot)
+            for i in 1:N0
+                ind=inds0[i]
+                C_gamma[1,i]=gamma_plot[ind]/deltagamma
+                C_gamma[2,i]=gamma_plot[ind]/deltagamma
+                C_gamma[3,i]=gamma_plot[ind]/deltagamma
             end
-            #empty!(ax1.scene)
-            p1=poly!(ax1,connect(xyz, Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
-            if N1>0;
-                p2=poly!(ax1,connect(xyz1, Point{3}), connect(1:length(X1), TriangleFace); color=C1_gamma[:], strokewidth=1, colorrange=(0,1),colormap = (:bone))
+            empty!(ax1.scene)
+            p1=poly!(ax1,connect(xyz, Makie.Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
+            if N1>0
+                p2=poly!(ax1,connect(xyz1, Makie.Point{3}), connect(1:length(X1), TriangleFace); color=C1_gamma[:], strokewidth=1, colorrange=(0,1),colormap = (:bone))
             end
             ax1.title=string("Filling factor at t=", string(round(t_div*time_val)/t_div) ,"s")
-            hidedecorations!(ax1);
+            hidedecorations!(ax1)
             hidespines!(ax1) 
             display(fig)
         end
+        
     end 
+    
+
 
 end
