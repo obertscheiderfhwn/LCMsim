@@ -222,7 +222,7 @@ module lcmsim
  
         #License statement
         print("\n")
-        print("LCMsim version 0.1 \n");
+        print("LCMsim version 1.0.1 \n");
         print("LCMsim is Julia code with GUI which simulates the mold filling in Liquid Composite Molding (LCM) manufacturing process. \n");
         print("Copyright (C) 2022 Christof Obertscheider / University of Applied Sciences Wiener Neustadt (FHWN)  \n");    
         print("\n")
@@ -761,7 +761,7 @@ module lcmsim
 
                         #Final solution for EOS:
                         betat2_fac=0.1  #0.25  #1.0  #
-                        exp_val=25;  #10;  #4;  #
+                        exp_val=10;  #4;  #25;  #
                         a_val=p_init;
                         c_val=(p_a-p_init)/(rho_0_oil-rho_0_air)^exp_val;
                         p_new[ind]=a_val+c_val*(rho_new[ind]-rho_0_air)^exp_val;
