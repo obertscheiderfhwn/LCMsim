@@ -541,6 +541,7 @@ module lcmsim
         # Define simulation time and intermediate output times
         #----------------------------------------------------------------------
         t_out=0;
+        t_progressbar=0;
         t=0;
         tmin=n_pics*deltat;
         tmax=max(tmin,tmax);    
@@ -620,7 +621,6 @@ module lcmsim
         #----------------------------------------------------------------------
         n_progressbar=20;
         deltat_progressbar=tmax/n_progressbar;
-        t_progressbar=deltat_progressbar;
         p=Progress(n_progressbar);
         iter=1;
         while t<=tmax;           
@@ -760,7 +760,7 @@ module lcmsim
 
                         #Final solution for EOS:
                         betat2_fac=0.25  #0.1  #1.0  #
-                        exp_val=10;  #4;  #
+                        exp_val=4;  #10;  #
                         a_val=p_init;
                         c_val=(p_a-p_init)/(rho_0_oil-rho_0_air)^exp_val;
                         p_new[ind]=a_val+c_val*(rho_new[ind]-rho_0_air)^exp_val;
@@ -827,7 +827,7 @@ module lcmsim
 
             #Progress bar with percentage during run
             prozent = (t/tmax)*100;  
-            if t>=t_progressbar-deltat;
+            if t>=t_progressbar;
                 #print(string(string(prozent),"%","\n"))
                 t_progressbar=t_progressbar+deltat_progressbar;   
                 next!(p);
@@ -2414,7 +2414,7 @@ module lcmsim
             gamma_plot=Vector{Float64}(undef, N);
             deltap=maximum(p_new)-minimum(p_new);      
             for ind=1:N;
-                if gamma_out[ind]>0.8;
+                if gamma_out[ind]>=0.8;
                     gamma_plot[ind]=1;
                 else
                     gamma_plot[ind]=0;
@@ -2527,7 +2527,7 @@ module lcmsim
         end
         display(fig)
     end 
-    
+
 
     function plot_filling(n_out,n_pics)
         val=0
