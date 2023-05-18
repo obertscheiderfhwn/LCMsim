@@ -2,6 +2,9 @@
 
 
 # Summary
+
+<img src="figures/overview.png">
+
 Resin Transfer Moulding (RTM) is a manufacturing process for producing thin-walled fiber reinforced polymer composites where dry fibers are placed inside a mould and resin is injected under pressure into the fibrous preform. In contrast to RTM, in Vaccum-Assisted Resin Infusion (VARI) vacuum pulls resin through the preform on a single-sided tool with vacuum bagging. During mold design for both RTM and VARI, filling simulations can study different manufacturing concepts (i.e. placement of inlet ports and vents) to guarantee complete filling of the part and avoid air entrapment where flow fronts converge. 
 
 In all of the liquid composite manufacturing (LCM) technologies dry fiber preforms without resin are placed into a mold and the mold is closed. Resin then enters into the mold until the preform is fully wetted with resin. After the resin is cured the mold is opened and the part is extracted. In RTM resin is injected into a matched mold under pressure which gives excellent surface finishes on both sides and high fiber volume fractions (55-65 \%) can be obtained. In VARI, vacuum pulls liquid resin into a preform which lies on a single-sided tool normally used with a vacuum bagging which results on an excellent surface only on the tool side and only a lower fiber volume fraction (45-55 \%) can be obtained.
