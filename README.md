@@ -77,7 +77,7 @@ Nodes are described by the keyword `GRID`, followed by a grid number, followed b
 
 ## Run simulation
 
-LCMsim is executed with a well-defined list of parameters specified in an input text file or in the GUI. The following figure shows the GUI with explanation of the parameters. The mesh file and all parameters must be specified in SI units. The GUI was tested for Windows, the GUI for Linux is still experimental but one has access to all functions after compiling the Julia module in the command line.
+LCMsim is executed with a well-defined list of parameters specified in an input text file or in the GUI. The following figure shows the GUI with explanation of the parameters. The mesh file and all parameters must be specified in SI units. The GUI was extensively tested for Windows 10, the GUI for Linux is still experimental but one has access to all functions after compiling the Julia module in the command line.
 
 <img src="figures/lcmsim_help.png">
 
