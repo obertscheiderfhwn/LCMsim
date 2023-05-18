@@ -77,7 +77,7 @@ Nodes are described by the keyword `GRID`, followed by a grid number, followed b
 
 ## Run simulation
 
-RTMsim is executed with a well-defined list of parameters specified in an input text file, in the GUI or in the function call `rtmsim.rtmsim_rev1` in the terminal. The following figure shows the GUI with explanation of the parameters. The mesh file and all parameters must be specified in SI units.
+LCMsim is executed with a well-defined list of parameters specified in an input text file or in the GUI. The following figure shows the GUI with explanation of the parameters. The mesh file and all parameters must be specified in SI units.
 
 <img src="figures/lcmsim_help.png">
 
@@ -110,32 +110,28 @@ Parameter `i_model` specifies the flow model (`=2` for iso-thermal RTM, `=3` for
 Thus, the preform parameters of the four optional sets given in lines 7 to 10 are only used, if the corresponding patch type is specified with a value of 2. 
 The parameters in line 12 are used for continuing a simulation for another `tmax` flow time, if `i_restart=1` with the data saved in file `restartfilename`. In line 13 the interactive mode can be turned on if `i_interactive=1`. At selected points in the preform (plot the mesh with second parameter `=2` and select with `p`+LMB), additional inlet port with radius `r_p` are assigned. If all patch types are `=0`, only the selected inlet ports are used. Otherwise the settings are cummulative. The last parameter `n_pics` determines the number of intermediate outputs.
 
-A simulation with the parameters specified in an input file is executed either in the GUI by selecting the appropriate input file and afterwards running the simulation with this input file or from the Julia terminal with  the function `lcmsim.start_lcmsim("inputfiles\\input.txt")` where the input file name is the argument.
+A simulation with the parameters specified in an input file is executed either in the GUI by selecting the appropriate input file and afterwards running the simulation with this input file.
 
 Alternatively to using the GUI, one has access to all the functions after compiling the Julia module. Popular functions are:
 - `lcmsim.plot_mesh("meshfiles\\mesh_permeameter1_foursets.bdf",1)` for plotting the mesh defined in the bdf-file
 - `lcmsim.plot_sets("meshfiles\\mesh_permeameter1_foursets.bdf")` for plotting the sets specified in the bdf-file
-- `lcmsim.lcmsim_solver(2,"meshfiles\\mesh_permeameter1_foursets.bdf",200, 101325,1.225,1.4,0.06, 1.35e5,1.00e5, 1.2,960, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,0,0,0, 0,"results.jld2",0,0.01,16)` for starting a simulation with one pressure inlet port (sets 2, 3 and 4 are not used and consequently the preform parameters are ignored; since set 1 is a pressure inlet, also the parameters for set 1 are ignored and the only relevant parameter for the specified set is the pressure difference between injection and initial cavity pressure)
-- `lcmsim.lcmsim_solver(2,"meshfiles\\mesh_permeameter1_foursets.bdf",200, 101325,1.225,1.4,0.06, 1.35e5,1.00e5, 1.2,960, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,2,2,2, 0,"results.jld2",0,0.01,16))` for starting a simulation with different patches and race tracking
-- `lcmsim.lcmsim_solver(2,"meshfiles\\mesh_permeameter1_foursets.bdf",200, 101325,1.225,1.4,0.06, 1.35e5,1.00e5, 1.2,960, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,2,2,2, 1,"results.jld2",0,0.01,16)` for continuing the previous simulation
-- `lcmsim.plot_mesh("meshfiles\\mesh_annulusfiller1.bdf",2)` for the manual selection of inlet ports with left mouse button click while key `p` is pressed
-- `lcmsim.lcmsim_solver(2,"meshfiles\\mesh_annulusfiller1.bdf",200, 101325,1.225,1.4,0.06, 1.35e5,1.00e5, 1.2,960, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 0,0,0,0,0,"results.jld2",1,0.01,16)` for starting only with the interactively selected inlet ports
+- `lcmsim.start_lcmsim("inputfiles\\input.txt")` for starting a simulation with the parameters specified in the text file input.txt
 - `lcmsim.plot_results("results.jld2")` for plotting the final filling and pressure contours
 - `lcmsim.plot_overview(-1,-1)` for plotting the filling contours at four equidistant time instances
 - `lcmsim.plot_filling(-1,-1)` for plotting the filling at different time instances selected with a slider bar
-- `lcmsim.start_lcmsim("inputfiles\\input.txt")` for starting a simulation with the parameters specified in the text file input.txt
-- `lcmsim.lcmsim_solver(3,"meshfiles\\mesh_vari1.bdf",200, 101325,1.225,1.4,0.3, 1.00e5,0.23e5, 1.2,960, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.410,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,0,0,0,0,"results.jld2",0,0.01,16)` for starting a rectilinear VARI simulation
-- `lcmsim.lcmsim_solver(3,"meshfiles\\mesh_vari2.bdf",200, 101325,1.225,1.4,0.3, 1.00e5,0.23e5, 1.2,960, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.458,0.60e5, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.458,0.60e5, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.410,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,2,0,0,0,"results.jld2",0,0.01,16)` for comparing VARI and RTM in a rectilinear flow simulation
+
 
 # Validation and verification cases
 
-Three different test cases are available, successfully validating the Julia implementation of the RTM filling model:
+Different test cases are available, successfully validating the Julia implementation of the RTM filling model:
 1. Validation of the software tool for radial flow with isotropic in-plane permeablity: The simulated flow front position after 200 s is compared with the calculated flow front position from literature.  
 2. Verification of the software tool for radial flow with tilted orthotropic in-plane permeablity: The simulated tilted elliptical flow front is analysed and the calculated orthotropic permeablity is compared with the simulation input.
 3. Different flow front propagation depending on mesh size for a complex annulus filler-like part.
-4. Rectilinar VARI flow to show the difference cavity thickness and to compare with the analtical flow front position if permeability and porosity were unchanged for vacuum.
+4. Validation with radial flow experiments.
+5. Rectilinar VARI flow to show the difference cavity thickness and to compare with the analtical flow front position if permeability and porosity were unchanged for vacuum.
 
-The validation and verification cases can be executed in the GUI and from the Julia terminal. The input files for the validation cases are `input_case1_coarsemesh.txt`, `input_case1_finemesh.txt`, `input_case2_coarsemesh.txt`, `input_case2_finemesh.txt`, `input_case3_coarsemesh.txt`, `input_case3_finemesh.txt`. The input file names are saved in directory `inputfiles`. The filling overview is created with the button `Plot overview` in the GUI or with `rtmsim.plot_overview(-1,-1)` from the Julia terminal. 
+
+The validation and verification cases can be executed in the GUI and from the Julia terminal. The input files for the validation cases are `input_case1_coarsemesh.txt`, `input_case1_finemesh.txt`, `input_case2_coarsemesh.txt`, `input_case2_finemesh.txt`, `input_case3_coarsemesh.txt`, `input_case3_finemesh.txt`, `input_case4a.txt`, `input_case4b.txt`, `input_case5_imodel3`. The input file names are saved in directory `inputfiles`. The filling overview is created with the button `Plot overview` in the GUI or with `lcmsim.plot_overview(-1,-1)` from the Julia terminal. 
 
 The following passages show and explain the simulation results (after rotating the views with LMB) for the test cases.
 
@@ -154,7 +150,10 @@ Results for coarse and fine mesh of case 3 (Bounding box of part is 0.4 x 0.15 x
 <img src="figures/validation_case3b.png"><br>
 If the position of inlet and outlet ports is investigated, simulations with a coarse mesh and consequently reduced computational time is sufficient since the flow front progagation is predicted properly. The actual filling time can only be predicted with a fine mesh. A mesh refinement study must be performed. With the coarse mesh it takes approximately 50 s longer to reach the same filling state. If the predicted filling with the fine mesh is considered correct, the error with the coarse mesh is approximately 20%. This is in good agreement with the results from case 1 where domain size, coarse and fine mesh are similar and the permeability and injection values are the same. 
 
-Results for case 4 (Preform size 0.2 x 0.05 x 0.0022 m^3, injection gate at left boundary, 77000 Pa injection pressure, dynamic viscosity 0.3 Pas, porosity 0.41 at vacuum and 0.458 at 60000 Pa, isotropic permeability according to Kozney-Carman relationship with factor 8.14e-11 m^2). Left top shows the cavity thickness, left bottom shows the filling factor and right bottom shows the fluid pressure:
+The results of cases 4a and 4b will be described in a scientific article. Two experiments were used for validation. In the first,
+zones with different preform properties were present and in the second, race-tracking was enforced.
+
+Results for case 5 (Preform size 0.2 x 0.05 x 0.0022 m^3, injection gate at left boundary, 77000 Pa injection pressure, dynamic viscosity 0.3 Pas, porosity 0.41 at vacuum and 0.458 at 60000 Pa, isotropic permeability according to Kozney-Carman relationship with factor 8.14e-11 m^2). Left top shows the cavity thickness, left bottom shows the filling factor and right bottom shows the fluid pressure:
 <img src="figures/validation_case4.png"><br>
 The porosity changes between 0.410 at vacuum and 0.410+(0.458-0.410)/0.6e5^2*1e5^2=0.543 at ambient pressure. Consequently the permeability changes between 1.6e-11 and 6.24e-11 m^2. Consequently, the flow front must lie between 0.063 and 0.109 m and the cavity thickness must lie between 0.0022 and (1-0.41)/(1-543)*0.0022=0.0028. The following snippet shows the calculation of the flow front position for different porosity levels.
 
@@ -184,7 +183,7 @@ xf =
 
 # Use cases
 
-The following three examples show typical use cases how RTMsim is used by engineers:
+The following three examples show typical use cases how LCMsim is used by engineers:
 
 1. This examples shows how to start a simulation with the GUI. Select the mesh file `meshfiles\\mesh_permeameter1_foursets.bdf` and set all other parameters as shown:<br>
 <img src="figures/example1a.png"><br>
@@ -226,11 +225,11 @@ Suggestions for functionalities to be implemented and user feedback from case st
 
 If LCMsim is used for research or development, please use the following entry, shown in BiBTeX format:
 ```
-@misc{RTMsim,
+@misc{LCMsim,
   author =       {Obertscheider, Christof and Fauster, Ewald},
   title =        {LCMsim - A Julia module for filling simulations in Liquid Composite Moulding},
   howpublished = {\url{https://github.com/obertscheiderfhwn/LCMsim}},
-  year =         {2022}
+  year =         {2023}
 }
 ```
 
