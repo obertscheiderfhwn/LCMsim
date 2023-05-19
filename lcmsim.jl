@@ -50,7 +50,6 @@ module lcmsim
     using ProgressMeter
     GLMakie.activate!()    
     #using MAT  #temporary output in Matlab mat-format
-	import Base.Threads.@threads
             
     function start_lcmsim(inputfilename)
         # reads the text input file and calls the solver with the read parameters
@@ -224,7 +223,7 @@ module lcmsim
         print("\n")
         print("LCMsim version 1.0.1 \n");
         print("LCMsim is Julia code with GUI which simulates the mold filling in Liquid Composite Molding (LCM) manufacturing process. \n");
-        print("Copyright (C) 2022 Christof Obertscheider / University of Applied Sciences Wiener Neustadt (FHWN)  \n");    
+        print("Copyright (C) 2023 Christof Obertscheider / University of Applied Sciences Wiener Neustadt (FHWN)  \n");    
         print("\n")
         print("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version. \n");
         print("\n")
@@ -625,7 +624,7 @@ module lcmsim
         p=Progress(n_progressbar);
         iter=1;
         while t<=tmax;           
-            @threads for ind in 1:N 
+            for ind in 1:N 
                 if i_model==1 || i_model==2;
                     thickness_factor[ind]=Float64(1.0);  #change in cell thickness
                     volume_factor[ind]=Float64(1.0);  #change in cell volume do to cell thickness change
@@ -669,7 +668,7 @@ module lcmsim
                 end
             end
 
-            @threads for ind in 1:N
+            for ind in 1:N
                 if celltype[ind]==1  || celltype[ind]==-3; 
                     #Pressure gradient calculation
                     #dpdx,dpdy=numerical_gradient(1,ind,p_old,cellneighboursarray,cellcentertocellcenterx,cellcentertocellcentery);
@@ -753,90 +752,21 @@ module lcmsim
                             p_new[ind]=kappa*rho_new[ind]^gamma;
                         end
                     elseif i_model==2 || i_model==3;
-                        if rho_new[ind]>=0.5*rho_0_oil  
+                        if rho_new[ind]>=0.5*rho_0_oil  #0.5*rho_0_oil  
                             gamma_new[ind]=1;  
                         else
                             gamma_new[ind]=0;
                         end
 
-                        #Final solution for EOS:
-                        betat2_fac=0.1  #0.25  #1.0  #
-                        exp_val=10;  #4;  #25;  #
+                        #0.1/4 for standard applications, 0.25/4 for fast simulations, 0.1/25 for race-tracking
+                        betat2_fac=0.1  #1.0  #0.25  #
+                        exp_val=4;  #25;  #10;  #
                         a_val=p_init;
                         c_val=(p_a-p_init)/(rho_0_oil-rho_0_air)^exp_val;
                         p_new[ind]=a_val+c_val*(rho_new[ind]-rho_0_air)^exp_val;
                         p_new[ind]=min(1.0*p_a,p_new[ind]);
                         p_new[ind]=max(p_init,p_new[ind]);
 
-#                        #Test with double ellipse for speed up; to limit max pressure with smooth transition
-#                        betat2_fac=1.0  #0.25
-#                        if rho_new[ind]<=rho_0_air
-#                            p_new[ind]=p_init;
-#                        elseif rho_new[ind]<=rho_0_oil
-#                            a=(rho_0_oil-rho_0_air)
-#                            b=(p_a-p_init)
-#                            #p_new[ind]=-b/a*(a^2-(rho_new[ind]-rho_0_air)^2)^(1/2)+b+p_init
-#                            exp_val=2.5
-#                            p_new[ind]=-b/a*(a^exp_val-(rho_new[ind]-rho_0_air)^exp_val)^(1/exp_val)+b+p_init
-#                        elseif rho_new[ind]<=2*rho_0_oil
-#                            a=0.1*p_a
-#                            b=2*rho_0_oil
-#                            #p_new[ind]=b/a*(a^2-(rho_new[ind]-rho_0_oil)^2)^(1/2)+p_a
-#                            exp_val=2.0
-#                            p_new[ind]=b/a*(a^exp_val-(rho_new[ind]-rho_0_oil)^exp_val)^(1/exp_val)+p_a
-#                        else
-#                            a=0.1*p_a
-#                            b=2*rho_0_oil
-#                            exp_val=2.0
-#                            p_new[ind]=b/a*(a^exp_val-((b)-rho_0_oil)^exp_val)^(1/exp_val)+p_a
-#                        end
-
-
-
-#                        #Original solution for EOS
-#                        c1=0.01
-#                        c2=0.01       
-#                        betat2_fac=0.1               
-#                        comp_fact=0.95
-#                        #betat2_fac=1               
-#                        #comp_fact=0.80
-#                        rho_transition=comp_fact*rho_0_oil+c1*(rho_0_oil-comp_fact*rho_0_oil);
-#                        p_transition=p_init+c2*(p_a-p_init);   
-#                        if rho_new[ind]<=comp_fact*rho_0_oil  #pressure build-up starts only after threshold rho is reached
-#                            p_new[ind]=p_init;
-#                        elseif rho_new[ind]<=rho_transition;
-#                            rho_min=rho_0_air+(comp_fact*(rho_0_oil-rho_0_air));
-#                            p_1=p_init;
-#                            p_2=p_transition;
-#                            p_new[ind]=p_1+(p_2-p_1)*((rho_new[ind]-rho_min)/(rho_transition-rho_min))^2;
-#                        else
-#                            rho_min=rho_transition;
-#                            p_1=p_transition;
-#                            p_2=p_a;
-#                            p_new[ind]=p_1+(p_2-p_1)*((rho_new[ind]-rho_min)/(rho_0_oil-rho_min));
-#                        end  
-
-#                        #Alternative solution for EOS
-#                        #c1=0.8; betat2_fac=1
-#                        c1=0.95; betat2_fac=0.1
-#                        c2=0.01
-#                        rho_transition=rho_0_air+c1*(rho_0_oil-rho_0_air);
-#                        p_transition=p_init+c2*(p_a-p_init);
-#                        if rho_new[ind]<=rho_transition;
-#                            p_1=p_init;
-#                            p_2=p_transition;
-#                            rho_1=rho_init;
-#                            rho_2=rho_transition;
-#                            p_new[ind]=p_1+(p_2-p_1)*(rho_new[ind]-rho_1)/(rho_2-rho_1);
-#                        else
-#                            p_1=p_transition;
-#                            p_2=p_a;
-#                            rho_1=rho_transition;
-#                            rho_2=rho_a;
-#                            p_new[ind]=p_1+(p_2-p_1)*(rho_new[ind]-rho_1)/(rho_2-rho_1);
-#                        end
-#                        p_new[ind]=min(p_a,p_new[ind]);
-#                        p_new[ind]=max(p_init,p_new[ind]);
 
 
                     end
@@ -845,7 +775,7 @@ module lcmsim
             end
 
             #boundary conditions, only for pressure boundary conditions
-            @threads for ind in 1:N;
+            for ind in 1:N;
                 if celltype[ind]==-1;  #pressure inlet
                     u_new[ind]=u_a;
                     v_new[ind]=v_a;
