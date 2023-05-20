@@ -616,6 +616,40 @@ module lcmsim
             end
         end
 
+        #Calculate permeablity ratio
+        max_permeability1=0.
+        max_permeability2=0.
+        max_permeability=0.
+        min_permeability1=1.
+        min_permeability2=1.
+        min_permeability=1.
+        for ind in 1:N
+            if celltype[ind]==1  || celltype[ind]==-3; 
+                if cellpermeability[ind]>max_permeability1
+                    max_permeability1=cellpermeability[ind]
+                end
+                if cellalpha[ind].*cellpermeability[ind]>max_permeability2
+                    max_permeability2=cellalpha[ind].*cellpermeability[ind]
+                end
+                if cellpermeability[ind]<min_permeability1
+                    min_permeability1=cellpermeability[ind]
+                end
+                if cellalpha[ind].*cellpermeability[ind]<min_permeability2
+                    min_permeability2=cellalpha[ind].*cellpermeability[ind]
+                end
+            end
+        end
+        max_permeability=max(max_permeability1,max_permeability2)
+        #print(string("max_permeability1: ",string(max_permeability1), "\n" ) );
+        #print(string("max_permeability2: ",string(max_permeability2), "\n" ) );
+        #print(string("max_permeability: ",string(max_permeability), "\n" ) );
+        min_permeability=min(min_permeability1,min_permeability2)
+        #print(string("min_permeability1: ",string(min_permeability1), "\n" ) );
+        #print(string("min_permeability2: ",string(min_permeability2), "\n" ) );
+        #print(string("min_permeability: ",string(min_permeability), "\n" ) );
+        permeability_ratio=max_permeability/min_permeability
+        print(string("permeability_ratio: ",string(permeability_ratio), "\n" ) );
+
         #----------------------------------------------------------------------
         # Time evolution
         #----------------------------------------------------------------------
@@ -757,18 +791,19 @@ module lcmsim
                         else
                             gamma_new[ind]=0;
                         end
-
                         #0.1/4 for standard applications, 0.25/4 for fast simulations, 0.1/25 for race-tracking
-                        betat2_fac=0.1  #1.0  #0.25  #
-                        exp_val=4;  #25;  #10;  #
+                        if permeability_ratio>=100
+                            betat2_fac=1.0  #0.1  #0.25  #
+                            exp_val=4;  #25;  #10;  #
+                        else
+                            betat2_fac=1.0  #0.1  #0.25  #
+                            exp_val=4;  #25;  #10;  #
+                        end                        
                         a_val=p_init;
                         c_val=(p_a-p_init)/(rho_0_oil-rho_0_air)^exp_val;
                         p_new[ind]=a_val+c_val*(rho_new[ind]-rho_0_air)^exp_val;
                         p_new[ind]=min(1.0*p_a,p_new[ind]);
                         p_new[ind]=max(p_init,p_new[ind]);
-
-
-
                     end
 
                 end
