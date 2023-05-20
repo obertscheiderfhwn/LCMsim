@@ -793,8 +793,8 @@ module lcmsim
                         end
                         #0.1/4 for standard applications, 0.25/4 for fast simulations, 0.1/25 for race-tracking
                         if permeability_ratio>=100
-                            betat2_fac=1.0  #0.1  #0.25  #
-                            exp_val=4;  #25;  #10;  #
+                            betat2_fac=0.1  #1.0  #0.25  #
+                            exp_val=25;  #4;  #10;  #
                         else
                             betat2_fac=1.0  #0.1  #0.25  #
                             exp_val=4;  #25;  #10;  #
