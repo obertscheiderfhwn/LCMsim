@@ -18,13 +18,14 @@
 #                0.0635
 #            If porosity<0.58 permeability factor is <1, otherwise>1
 #       lcmsim.lcmsim_solver(3,"meshfiles\\mesh_vari1.bdf",200, 101325,1.225,1.4,0.3, 1.00e5,0.23e5, 1.2,960, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.458,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,0,0,0,0,"results.jld2",0,0.01,16)
-#       lcmsim.plot_mesh("meshfiles\\mesh_var2.bdf",1) 
-#       lcmsim.plot_sets("meshfiles\\mesh_var2.bdf")
+#       lcmsim.plot_mesh("meshfiles\\mesh_vari2.bdf",1) 
+#       lcmsim.plot_sets("meshfiles\\mesh_vari2.bdf")
 #       lcmsim.lcmsim_solver(3,"meshfiles\\mesh_vari2.bdf",200, 101325,1.225,1.4,0.3, 1.00e5,0.23e5, 1.2,960, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.458,0.60e5, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.458,0.60e5, 2.2e-3,0.410,8.14e-11,1,1,0,0,0.410,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,2,0,0,0,"results.jld2",0,0.01,16)
 #       lcmsim.plot_overview(-1,-1) 
 #       lcmsim.plot_filling(-1,-1)
 #       lcmsim.plot_thickness("output3_16.jld2")
 #       lcmsim.lcmsim_solver(2,"meshfiles\\mesh_permeameter1_foursets.bdf",200, 101325,1.225,1.4,0.06, 1.35e5,1.00e5, 1.2,960, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,0,0,0,0,"results.jld2",0,0.01,16) 
+#       lcmsim.start_lcmsim("inputfiles\\input_case1_coarsemesh.txt")
 #
 #       #compare with GUI
 #       lcmsim.lcmsim_solver(2,"meshfiles\\mesh_permeameter1_foursets.bdf",200, 101325,1.225,1.4,0.06, 1.35e5,1.0e5, 1.2,960, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-10,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-11,1,1,0,0,0.7,0.60e5, 3e-3,0.7,3e-9,1,1,0,0,0.7,0.60e5, 1,0,0,0,0,"results.jld2",0,0.01,16)
@@ -897,6 +898,26 @@ module lcmsim
                     outputfilename=string("results.jld2")
                     @save outputfilename t rho_new u_new v_new p_new gamma_new gamma_out gridx gridy gridz cellgridid N n_out
 
+                    #Add here a section which determines the filled area as fraction of the total area       
+                    #A_total=0.
+                    #A_filled=0.
+                    #A_cell=0.
+                    #for i=1:N;
+                    #    A_cell=cellvolume[i]./cellthickness[i]
+                    #    if gamma_out[i]>=-1  #for pressure inlet and interior cells
+                    #        A_total=A_total+A_cell
+                    #    end
+                    #    if gamma_out[i]>=0.8 || gamma_out[i]<0.  #inlet or filled
+                    #        A_filled=A_filled+A_cell
+                    #    end
+                    #end
+                    #print(string(" ","\n"))
+                    #print(string("Filling status after ","\n"))
+                    #print(string("t=",string(t)," s" ,"\n"))
+                    #print(string("A_total=",string(A_total),"\n"))
+                    #print(string("A_filled=",string(A_filled),"\n"))
+                    #print(string("A_filled/A_total=",string(A_filled/A_total),"\n"))
+
                     if i_model==3;
                         outputfilename=string("output3_", string(n_out), ".jld2")                
                         @save outputfilename t cellthickness_out gamma_out gridx gridy gridz cellgridid N n_out
@@ -1124,6 +1145,9 @@ module lcmsim
         if meshfilename[end-2:end]=="bdf"
            N,cellgridid,gridx,gridy,gridz,cellcenterx,cellcentery,cellcenterz,patchparameters,patchparameters1,patchparameters2,patchparameters3,patchparameters4,patchids1,patchids2,patchids3,patchids4,inletpatchids=
                 read_nastran_mesh(meshfilename,paramset,paramset1,paramset2,paramset3,paramset4,patchtype1val,patchtype2val,patchtype3val,patchtype4val,i_interactive,r_p);
+        elseif meshfilename[end-2:end]=="inp"
+            N,cellgridid,gridx,gridy,gridz,cellcenterx,cellcentery,cellcenterz,patchparameters,patchparameters1,patchparameters2,patchparameters3,patchparameters4,patchids1,patchids2,patchids3,patchids4,inletpatchids=
+                read_abaqus_mesh(meshfilename,paramset,paramset1,paramset2,paramset3,paramset4,patchtype1val,patchtype2val,patchtype3val,patchtype4val,i_interactive,r_p);
         end
    
         return N,cellgridid,gridx,gridy,gridz,cellcenterx,cellcentery,cellcenterz,patchparameters,patchparameters1,patchparameters2,patchparameters3,patchparameters4,patchids1,patchids2,patchids3,patchids4,inletpatchids
@@ -1294,7 +1318,7 @@ module lcmsim
                 end
                 @load psetfilename pset;
                 inletpatchids=pset;
-                if length(patchids1)<1;
+                if length(inletpatchids)<1;
                     errorstring=string("Inlet definition empty"* "\n"); 
                     error(errorstring);
                 end
@@ -1338,6 +1362,259 @@ module lcmsim
            
         return N,cellgridid,gridx,gridy,gridz,cellcenterx,cellcentery,cellcenterz,patchparameters,patchparameters1,patchparameters2,patchparameters3,patchparameters4,patchids1,patchids2,patchids3,patchids4,inletpatchids
     end
+
+
+    function read_abaqus_mesh(meshfilename,paramset,paramset1,paramset2,paramset3,paramset4,patchtype1val,patchtype2val,patchtype3val,patchtype4val,i_interactive,r_p);
+        #Abaqus format: Node block after *Node, Element block after *Element, TYPE=S3, Element sets after *ELSET
+        #Only one block with nodes and one block with face elements. Mulitple (<=4) element sets possible.
+
+        if ~isfile(meshfilename);
+            errorstring=string("File ",meshfilename," not existing"* "\n"); 
+            error(errorstring);
+        end
+        ind=Int64(1);
+        gridind=Int64(1);
+        nodeind=Int64(1);
+        elementind=Int64(1);
+        setelementind=Int64(1);
+        setind=Int64(0);
+        isnodedefinition=Int64(0);
+        iselementdefinition=Int64(0);
+        issetdefinition=Int64(0);
+        patchorigids1=[];
+        patchorigids2=[];
+        patchorigids3=[];
+        patchorigids4=[];
+        origgridid=[];
+        gridx=[];
+        gridy=[];
+        gridz=[];
+        celloriggridid=[];
+        cellgridid=Array{Int64}(undef, 0, 3);
+        inletpatchids=[];
+        
+        open(meshfilename, "r") do fid
+            line=1;
+            while !eof(fid)            
+                thisline=readline(fid)
+                thisline=replace(thisline," "=> "");
+
+                len_line=length(thisline)
+                #print("Line: "*string(line)*"\n")
+                #print("Line text: "*string(thisline)*"\n")
+
+                if isnodedefinition==1
+                    if isempty(thisline)==1 || cmp(thisline[1:1],"*")==0
+                        isnodedefinition=Int64(0)
+                    else
+                        txt_vec=split(thisline,",")
+                        gridindstring=txt_vec[1]
+                        origgridid=vcat(origgridid,parse(Int64,gridindstring));                        
+                        txt=txt_vec[2]
+                        txt=replace(txt," "=> "");txt=replace(txt,"E" => "");txt=replace(txt,"e" => "");
+                        txt1=replace(txt,"-" => "e-");txt1=replace(txt1,"+" => "e+");
+                        if cmp(txt1[1],'e')==0;txt2=txt1[2:end];else;txt2=txt1;end;
+                        val=parse(Float64,txt2);
+                        val1=val;
+                        txt=txt_vec[3]
+                        txt=replace(txt," "=> "");txt=replace(txt,"E" => "");txt=replace(txt,"e" => "");
+                        txt1=replace(txt,"-" => "e-");txt1=replace(txt1,"+" => "e+");
+                        if cmp(txt1[1],'e')==0;txt2=txt1[2:end];else;txt2=txt1;end;
+                        val=parse(Float64,txt2);
+                        val2=val;
+                        txt=txt_vec[4]
+                        txt=replace(txt," "=> "");txt=replace(txt,"E" => "");txt=replace(txt,"e" => "");
+                        txt1=replace(txt,"-" => "e-");txt1=replace(txt1,"+" => "e+");
+                        if cmp(txt1[1],'e')==0;txt2=txt1[2:end];else;txt2=txt1;end;
+                        val=parse(Float64,txt2);
+                        val3=val;
+                        gridx=vcat(gridx,Float64(val1));
+                        gridy=vcat(gridy,Float64(val2));
+                        gridz=vcat(gridz,Float64(val3));
+                        gridind=gridind+1;
+                    end
+                end
+
+                if iselementdefinition==1 
+                    if isempty(thisline)==1 || cmp(thisline[1:1],"*")==0
+                        iselementdefinition=Int64(0)
+                    else
+                        txt_vec=split(thisline,",")
+                        celloriggridid=vcat(celloriggridid,parse(Int64,txt_vec[1]));
+                        i1val=parse(Int64,txt_vec[2]);
+                        i1=findfirst(isequal(i1val),origgridid);
+                        i2val=parse(Int64,txt_vec[3]);
+                        i2=findfirst(isequal(i2val),origgridid);
+                        i3val=parse(Int64,txt_vec[4]);
+                        i3=findfirst(isequal(i3val),origgridid);
+                        ivec=[i1,i2,i3];
+                        idel=findall(isequal(min(ivec[1],ivec[2],ivec[3])),ivec);
+                        deleteat!(ivec,idel)
+                        idel=findall(isequal(max(ivec[1],ivec[2])),ivec);
+                        deleteat!(ivec,idel)                        
+                        cellgridid=vcat(cellgridid,[min(i1,i2,i3) ivec[1] max(i1,i2,i3)]);
+                        ind=ind+1;    
+                    end
+                end
+
+                if issetdefinition==1 
+                    if isempty(thisline)==1 || cmp(thisline[1:1],"*")==0
+                        issetdefinition=Int64(0)
+                    elseif (tryparse(Int64,thisline[1:1]))==nothing    #name instead of numbers
+                        issetdefinition=Int64(0)
+                        setind=setind-1
+                    else
+                        txt1=thisline
+                        txt1=replace(txt1," "=> "");
+                        txt2=split(txt1,",");
+                        for i in 1:length(txt2);
+                            if !isempty(txt2[i]);
+                                if setind==1; 
+                                    patchorigids1=vcat(patchorigids1,parse(Int64,txt2[i]))
+                                elseif setind==2;
+                                    patchorigids2=vcat(patchorigids2,parse(Int64,txt2[i]))
+                                elseif setind==3;
+                                    patchorigids3=vcat(patchorigids3,parse(Int64,txt2[i]))
+                                elseif setind==4;
+                                    patchorigids4=vcat(patchorigids4,parse(Int64,txt2[i]))
+                                end
+                            end
+                        end
+                    end
+                end
+
+                
+                if len_line>=5 &&  (cmp( thisline[1:5],"*Node")==0 || cmp( thisline[1:5],"*NODE")==0 ) #if the first five characters are *Node: isnodedefinition=1; else: isnodedefinition=0
+                    isnodedefinition=Int64(1);
+                    nodeind=1
+                    gridind=1
+                end
+                if (len_line>=17 &&  (cmp(thisline[1:17],"*Element, TYPE=S3")==0 || cmp(thisline[1:17],"*Element, Type=S3")==0 || cmp(thisline[1:17],"*ELEMENT, TYPE=S3")==0 || cmp(thisline[1:17],"*ELEMENT, Type=S3")==0) ) ||
+                    len_line>=16 &&  (cmp(thisline[1:16],"*Element,TYPE=S3")==0 || cmp(thisline[1:16],"*Element,Type=S3")==0 || cmp(thisline[1:16],"*ELEMENT,TYPE=S3")==0 || cmp(thisline[1:16],"*ELEMENT,Type=S3")==0)  #if the first 17 characters are *Element, TYPE=S3                    
+                    iselementdefinition=Int64(1);
+                    ind=1
+                    elementind=1
+                end
+                if len_line>=6 &&  (cmp( thisline[1:6],"*Elset")==0 || cmp( thisline[1:6],"*ELSET")==0)  #if the first six characters are *ELSET
+                    issetdefinition=Int64(1);
+                    setelementind=1
+                    setind=setind+1
+                end
+
+                line+=1
+            end
+        end
+        N=ind-1;  #total number of cells
+
+        #loop to define cell center coordinates in global CS
+        cellcenterx=[];
+        cellcentery=[];
+        cellcenterz=[];
+        for ind in 1:N;
+            i1=cellgridid[ind,1];
+            i2=cellgridid[ind,2];
+            i3=cellgridid[ind,3];
+            cellcenterx=vcat(cellcenterx,(gridx[i1]+gridx[i2]+gridx[i3])/3);
+            cellcentery=vcat(cellcentery,(gridy[i1]+gridy[i2]+gridy[i3])/3);
+            cellcenterz=vcat(cellcenterz,(gridz[i1]+gridz[i2]+gridz[i3])/3);
+        end
+
+        if i_interactive==1;
+            assign_pset(r_p,N,cellcenterx,cellcentery,cellcenterz)
+            psetfilename="pset.jld2"
+            if ~isfile(psetfilename);
+                errorstring=string("File ",psetfilename," not existing"* "\n"); 
+                error(errorstring);
+            end
+            @load psetfilename pset;
+            inletpatchids=pset;
+            if length(inletpatchids)<1;
+                errorstring=string("Inlet definition empty"* "\n"); 
+                error(errorstring);
+            end
+            patchids1=[];
+            patchids2=[];
+            patchids3=[];
+            patchids4=[];   
+            patchparameters=paramset;
+            patchparameters1=[];
+            patchparameters2=[];
+            patchparameters3=[];
+            patchparameters4=[];        
+        else
+            patchids1=[];
+            patchids2=[];
+            patchids3=[];
+            patchids4=[];
+            for i in 1:length(patchorigids1);
+                i1=findfirst(isequal(patchorigids1[i]),celloriggridid);
+                patchids1=vcat(patchids1,i1);
+            end
+            for i=1:length(patchorigids2);
+                i1=findfirst(isequal(patchorigids2[i]),celloriggridid);
+                patchids2=vcat(patchids2,i1);
+            end
+            for i=1:length(patchorigids3);
+                i1=findfirst(isequal(patchorigids3[i]),celloriggridid);
+                patchids3=vcat(patchids3,i1);
+            end
+            for i=1:length(patchorigids4);
+                i1=findfirst(isequal(patchorigids4[i]),celloriggridid);
+                patchids4=vcat(patchids4,i1);
+            end
+            if i_interactive==2;
+                assign_pset(r_p,N,cellcenterx,cellcentery,cellcenterz)
+                psetfilename="pset.jld2"
+                if ~isfile(psetfilename);
+                    errorstring=string("File ",psetfilename," not existing"* "\n"); 
+                    error(errorstring);
+                end
+                @load psetfilename pset;
+                inletpatchids=pset;
+                if length(inletpatchids)<1;
+                    errorstring=string("Inlet definition empty"* "\n"); 
+                    error(errorstring);
+                end
+            end
+            patchparameters=paramset;
+            patchparameters1=[];
+            patchparameters2=[];
+            patchparameters3=[];
+            patchparameters4=[];
+            for i_patch in 1:4;
+                if i_patch==1;
+                    patchids=patchids1;
+                elseif i_patch==2;
+                    patchids=patchids2;
+                elseif i_patch==3;
+                    patchids=patchids3;
+                elseif i_patch==4;
+                    patchids=patchids4;
+                end
+                if !isempty(patchids);
+                    if i_patch==1;
+                        if patchtype1val==2;
+                            patchparameters1=paramset1;
+                        end
+                    elseif i_patch==2;
+                        if patchtype2val==2;
+                            patchparameters2=paramset2;
+                        end
+                    elseif i_patch==3;
+                        if patchtype3val==2; 
+                            patchparameters3=paramset3;
+                        end
+                    elseif i_patch==4;
+                        if patchtype4val==2;
+                            patchparameters4=paramset4;
+                        end
+                    end
+                end
+            end
+        end
+           
+        return N,cellgridid,gridx,gridy,gridz,cellcenterx,cellcentery,cellcenterz,patchparameters,patchparameters1,patchparameters2,patchparameters3,patchparameters4,patchids1,patchids2,patchids3,patchids4,inletpatchids
+    end    
 
 
     function create_faces(cellgridid, N, maxnumberofneighbours);
@@ -1927,7 +2204,9 @@ module lcmsim
             filename="inletpostions.jld2"
             @save filename inletpos_xyz
 
-            markersizeval=maxdelta*100;
+            markersizeval=20  #maxdelta*100;
+            #print("maxdelta= "*string(maxdelta)*"\n")
+            #print("markersizeval= "*string(markersizeval)*"\n")
             fig = Figure()
             ax1 = Axis3(fig[1, 1]; aspect=(ax,ay,az), perspectiveness=0.5,viewmode = :fitzoom,title="Select inlets with p + LMB")
             p=scatter!(ax1, positions,markersize=markersizeval)
