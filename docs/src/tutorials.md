@@ -26,7 +26,7 @@ Link to the validation paper:
 [C. Obertscheider, E. Fauster and S. Stieber, Experimental validation of a new adaptable LCM mold filling software](https://www.tandfonline.com/doi/full/10.1080/20550340.2023.2282310)
 
 ```@raw html
-<iframe src="https://fhwn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=a3b5d169-fa52-4f0c-b9cd-b0f100c57a9b&autoplay=false&offerviewer=false&showtitle=false&showbrand=false&captions=false&interactivity=all" height="405" width="720" style="border: 1px solid #464646;" allowfullscreen allow="autoplay" aria-label="In Panopto integrierter Videoplayer"></iframe>
+<iframe src="https://fhwn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=e97acd92-c2d2-4944-ac6b-b0f2007cff01&autoplay=false&offerviewer=false&showtitle=false&showbrand=false&captions=false&interactivity=all" height="405" width="720" style="border: 1px solid #464646;" allowfullscreen allow="autoplay" aria-label="In Panopto integrierter Videoplayer"></iframe>
 ```
 
 ## With meshing
@@ -39,7 +39,7 @@ Here you can download the mid-surface geometry files:
 [Annulus filler](assets/geom/mesh_annulusfiller11.stp)
 
 ```@raw html
-<iframe src="https://fhwn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=e97acd92-c2d2-4944-ac6b-b0f2007cff01&autoplay=false&offerviewer=false&showtitle=false&showbrand=false&captions=false&interactivity=all" height="405" width="720" style="border: 1px solid #464646;" allowfullscreen allow="autoplay" aria-label="In Panopto integrierter Videoplayer"></iframe>
+<iframe src="https://fhwn.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=0e7c0412-80b0-4800-9d7e-b0f200add73c&autoplay=false&offerviewer=false&showtitle=false&showbrand=false&captions=false&interactivity=all" height="405" width="720" style="border: 1px solid #464646;" allowfullscreen allow="autoplay" aria-label="In Panopto integrierter Videoplayer"></iframe>
 ```
 
 
