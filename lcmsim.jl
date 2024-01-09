@@ -2187,7 +2187,7 @@ module lcmsim
         az=(deltaz+eps_delta)/(mindelta+eps_delta);
         
         if i_mode==1;
-            fig = Figure(resolution=(600, 600))
+            fig = Figure(size=(600, 600))
             ax1 = Axis3(fig[1, 1]; aspect=(ax,ay,az), perspectiveness=0.5,viewmode = :fitzoom,title="Mesh")
             poly!(connect(xyz, Point{3}), connect(1:length(X), TriangleFace); color=C[:], strokewidth=1)
             #hidedecorations!(ax1);
@@ -2352,13 +2352,13 @@ module lcmsim
 
         resolution_val=300;
         if n_patch==1;
-            fig = Figure(resolution=(1*resolution_val, resolution_val))
+            fig = Figure(size=(1*resolution_val, resolution_val))
         elseif n_patch==2;
-            fig = Figure(resolution=(2*resolution_val, 2*resolution_val))
+            fig = Figure(size=(2*resolution_val, 2*resolution_val))
         elseif n_patch==3;
-            fig = Figure(resolution=(3*resolution_val, resolution_val))
+            fig = Figure(size=(3*resolution_val, resolution_val))
         elseif n_patch==4;
-            fig = Figure(resolution=(4*resolution_val, resolution_val))
+            fig = Figure(size=(4*resolution_val, resolution_val))
         end
 
         #bounding box
@@ -2529,7 +2529,7 @@ module lcmsim
         az=(deltaz+eps_delta)/(mindelta+eps_delta);
 
         resolution_val=600;
-        fig = Figure(resolution=(2*resolution_val, resolution_val))
+        fig = Figure(size=(2*resolution_val, resolution_val))
         ax1 = Axis3(fig[1, 1]; aspect=(ax,ay,az), perspectiveness=0.5,viewmode = :fitzoom,title=string("Filling factor at t=", string(round(t_div*t)/t_div) ,"s"))
         poly!(connect(xyz, Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
         if N1>0; 
@@ -2634,7 +2634,7 @@ module lcmsim
         az=(deltaz+eps_delta)/(mindelta+eps_delta);
 
         resolution_val=600;
-        fig = Figure(resolution=(1*resolution_val, resolution_val))
+        fig = Figure(size=(1*resolution_val, resolution_val))
         ax1 = Axis3(fig[1, 1]; aspect=(ax,ay,az), perspectiveness=0.5,viewmode = :fitzoom,title=string("Cell thickness at t=", string(round(t_div*t)/t_div) ,"s"))
         poly!(connect(xyz, Point{3}), connect(1:length(X), TriangleFace); color=C_h[:], strokewidth=1, colorrange=(0,1))
         if N1>0; 
@@ -2688,7 +2688,7 @@ module lcmsim
         t_div=10^2;
 
         resolution_val=300;
-        fig = Figure(resolution=(4*resolution_val, resolution_val))
+        fig = Figure(size=(4*resolution_val, resolution_val))
         i_out=n_out-3*Int64(n_pics/4);
         for i_plot in 1:4;          
             outputfilename=string("output_",string(i_out),".jld2");

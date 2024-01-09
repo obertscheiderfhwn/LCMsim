@@ -269,6 +269,7 @@ function q_clicked(w)
 end
 function h_clicked(w)
     i=GtkImage("figures\\lcmsim_help_small.png");
+    #i=GtkImage("figures\\lcmsim_help.png");
     w=GtkWindow(i,"Help");
     show(i);
 end
