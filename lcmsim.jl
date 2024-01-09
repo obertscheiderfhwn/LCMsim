@@ -2969,9 +2969,9 @@ module lcmsim
         end
     
         resolution_val=600
-        fig = Figure(resolution=(resolution_val, resolution_val))   
+        fig = Figure(size=(resolution_val, resolution_val))   
         ax1 = Axis3(fig[1, 1]; aspect=(ax,ay,az), perspectiveness=0.5,viewmode = :fitzoom,title=string("Filling factor at t=", string(round(t_div*t)/t_div) ,"s"))
-        #p1=poly!(ax1,connect(xyz, Makie.Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
+        p1=poly!(ax1,connect(xyz, Makie.Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
         #if N1>0
         #    p2=poly!(ax1,connect(xyz1, Makie.Point{3}), connect(1:length(X1), TriangleFace); color=C1_gamma[:], strokewidth=1, colorrange=(0,1),colormap = (:bone))
         #end
@@ -2980,7 +2980,8 @@ module lcmsim
         #display(fig)
         #sl_t = Slider(fig[2, 1], range = time_vector[1]:  (time_vector[end]-time_vector[1])/n_pics :time_vector[end], startvalue =  time_vector[end] )
         sl_t = Slider(fig[2, 1], range = time_vector[1]:  (time_vector[end]-time_vector[1])/n_pics :time_vector[end], startvalue =  time_vector[1] )
-        point = lift(sl_t.value) do x           
+                
+        point = lift(sl_t.value) do x    
             if x<0.5*(time_vector[end]+time_vector[1])
                 gamma_plot=output_array[:,1]
             else
@@ -3012,7 +3013,8 @@ module lcmsim
                 C_gamma[2,i]=gamma_plot[ind]/deltagamma
                 C_gamma[3,i]=gamma_plot[ind]/deltagamma
             end
-            empty!(ax1.scene)
+            #empty!(ax1.scene)
+            empty!(ax1)
             p1=poly!(ax1,connect(xyz, Makie.Point{3}), connect(1:length(X), TriangleFace); color=C_gamma[:], strokewidth=1, colorrange=(0,1))
             if N1>0
                 p2=poly!(ax1,connect(xyz1, Makie.Point{3}), connect(1:length(X1), TriangleFace); color=C1_gamma[:], strokewidth=1, colorrange=(0,1),colormap = (:bone))
