@@ -442,7 +442,7 @@ module lcmsim
                 print("patch 4 is pressure outlet \n");   
             end
         end
-        if patchtype1val!=1 && patchtype2val!=1 && patchtype3val!=1 && patchtype3val!=1 && i_interactive==0 && i_restart==0
+        if patchtype1val!=1 && patchtype2val!=1 && patchtype3val!=1 && patchtype4val!=1 && i_interactive==0 && i_restart==0
             errorstring=string("No inlet defined" * "\n"); 
             error(errorstring);
         end
