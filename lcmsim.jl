@@ -2194,9 +2194,9 @@ module lcmsim
             hidespines!(ax1) 
             display(fig)
         elseif i_mode==2;
-            points=rand(Point3f0, length(gridx));
+            points=rand(Point3f, length(gridx));
             for i in 1:length(gridx)
-                points[i]=Point3f0(gridx[i],gridy[i],gridz[i]);
+                points[i]=Point3f(gridx[i],gridy[i],gridz[i]);
             end
             positions = Observable(points) 
 
@@ -2227,7 +2227,7 @@ module lcmsim
                             @save filename inletpos_xyz
                             textpos=string("(" , string(round(t_div*xpos)/t_div) , "," , string(round(t_div*ypos)/t_div) , "," , string(round(t_div*zpos)/t_div) , ")"  )
                             t1=text!(ax1,textpos,position = (xpos,ypos,zpos) ) 
-                            scatter!(Point3f0(xpos,ypos,zpos),markersize=2*markersizeval,color = :black)
+                            scatter!(Point3f(xpos,ypos,zpos),markersize=2*markersizeval,color = :black)
                             return Consume(true)
                         end
                     end
